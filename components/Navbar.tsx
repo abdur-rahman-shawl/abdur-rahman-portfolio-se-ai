@@ -4,11 +4,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { useLoader } from '@/components/LoaderContext';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const { isLoading } = useLoader();
   const navRef = useRef<HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handleWindowScroll = () => {
@@ -30,6 +33,13 @@ export default function Navbar() {
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
+    
+    // If we are not on the home page, redirect to the home page with the hash
+    if (pathname !== '/') {
+      router.push(`/${targetId === '#home' ? '' : targetId}`);
+      return;
+    }
+
     const lenis = (window as any).lenis;
 
     if (targetId === '#home') {

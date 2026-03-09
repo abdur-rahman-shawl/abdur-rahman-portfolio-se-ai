@@ -45,90 +45,100 @@ const projects = [
 
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const projectItems = gsap.utils.toArray('.project-item');
-      
-      projectItems.forEach((item: any) => {
-        const img = item.querySelector('img');
-        
-        // Parallax image effect
-        gsap.to(img, {
-          yPercent: 20,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: item,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
+      const container = scrollContainerRef.current;
+      if (!container) return;
 
-        // Reveal effect
-        gsap.fromTo(
-          item,
-          { opacity: 0, y: 100 },
+      const projectItems = gsap.utils.toArray('.project-item');
+
+      // Horizontal Scroll Animation
+      gsap.to(projectItems, {
+        xPercent: -100 * (projectItems.length - 1),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          pin: true,
+          scrub: 1,
+          snap: 1 / (projectItems.length - 1),
+          // Base the duration on the width of the items to ensure smooth scrolling
+          end: () => `+=${container.offsetWidth}`,
+        },
+      });
+
+      // Individual Image Parallax inside horizontal scroll
+      projectItems.forEach((item: any) => {
+        const img = item.querySelector('.project-img');
+        gsap.fromTo(img, 
+          { xPercent: -10 },
           {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out',
+            xPercent: 10,
+            ease: 'none',
             scrollTrigger: {
               trigger: item,
-              start: 'top 80%',
+              containerAnimation: gsap.getById('horizontalScrollAnimation') || undefined,
+              start: 'left right',
+              end: 'right left',
+              scrub: true,
             },
           }
         );
       });
+
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section id="projects" ref={sectionRef} className="py-32 px-6 md:px-20 bg-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-end mb-16">
+    <section id="projects" ref={sectionRef} className="bg-[#0a0a0a] min-h-screen relative overflow-hidden flex items-center">
+      {/* Fixed Sticky Header for the Section */}
+      <div className="absolute top-16 left-6 md:left-20 z-10 mix-blend-difference pointer-events-none w-full pr-12 md:pr-40">
+        <div className="flex justify-between items-end">
           <h2 className="text-sm uppercase tracking-widest text-white/50">03 — Selected Works</h2>
           <p className="font-serif italic text-xl text-white/70">2023 — 2025</p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24">
-          {projects.map((project, index) => (
-            <Link 
-              href={`/projects/${project.slug}`} 
-              key={project.id}
-              className={`project-item group block cursor-pointer ${index % 2 !== 0 ? 'md:mt-32' : ''}`}
-            >
-              <div className="relative overflow-hidden aspect-[4/3] mb-6 rounded-lg">
-                <div className="absolute inset-0 bg-black/20 z-10 group-hover:bg-transparent transition-colors duration-500" />
+      </div>
+
+      {/* Horizontal Scroll Container */}
+      <div ref={scrollContainerRef} className="flex flex-nowrap h-screen w-[400vw]">
+        {projects.map((project) => (
+          <div 
+            key={project.id}
+            className="project-item w-screen h-screen flex-shrink-0 flex items-center justify-center p-6 md:p-20 relative group cursor-pointer"
+          >
+            <Link href={`/projects/${project.slug}`} className="w-full max-w-7xl block relative">
+              <div className="relative overflow-hidden w-full aspect-[4/3] md:aspect-[21/9] rounded-lg">
+                <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-transparent transition-colors duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]" />
                 <Image 
                   src={project.image} 
                   alt={project.title} 
                   fill
                   referrerPolicy="no-referrer"
-                  className="w-full h-[120%] object-cover -top-[10%] relative scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
+                  className="project-img w-[120%] h-full object-cover relative scale-110 group-hover:scale-100 transition-transform duration-[1.2s] ease-[cubic-bezier(0.76,0,0.24,1)]"
                 />
                 
                 {/* Hover reveal text */}
-                <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/40 backdrop-blur-sm">
-                  <span className="text-white font-sans uppercase tracking-[0.2em] text-sm border border-white/30 px-6 py-3 rounded-full">
-                    View Project
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-duration duration-[1s] ease-[cubic-bezier(0.76,0,0.24,1)] bg-black/20 backdrop-blur-[2px] translate-y-8 group-hover:translate-y-0">
+                  <span className="text-white font-sans uppercase tracking-[0.3em] text-xs border border-white/20 px-8 py-4 rounded-full mb-6 hover:bg-white hover:text-black transition-colors duration-300">
+                    View Case Study
                   </span>
                 </div>
               </div>
               
-              <div className="flex justify-between items-start">
+              {/* Titles below image */}
+              <div className="absolute bottom-[-100px] left-0 flex justify-between items-start w-full opacity-50 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
                 <div>
-                  <h3 className="text-3xl font-serif mb-2 group-hover:text-blue-400 transition-colors">{project.title}</h3>
-                  <p className="text-white/50 font-sans uppercase tracking-widest text-xs">{project.category}</p>
+                  <h3 className="text-4xl md:text-6xl font-serif mb-4 text-white">{project.title}</h3>
+                  <p className="text-white/50 font-sans uppercase tracking-widest text-sm">{project.category}</p>
                 </div>
-                <span className="font-mono text-sm text-white/40">{project.year}</span>
+                <span className="font-mono text-lg text-white/40">{project.year}</span>
               </div>
             </Link>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );

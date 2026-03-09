@@ -85,20 +85,33 @@ export default function ProjectDetail() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
 
-      tl.fromTo(
+      // Ensure we start at the very top immediately before fades
+      window.scrollTo(0, 0);
+
+      // Fade out the initial black screen overlay
+      tl.to('.page-transition-overlay', {
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          gsap.set('.page-transition-overlay', { display: 'none' });
+        }
+      })
+      .fromTo(
         '.reveal-text',
-        { y: 100, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power4.out', delay: 0.2 }
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power3.out' },
+        '-=0.4'
       ).fromTo(
         '.hero-image',
-        { scale: 1.1, opacity: 0 },
+        { scale: 1.05, opacity: 0 },
         { scale: 1, opacity: 1, duration: 1.5, ease: 'power3.out' },
         '-=0.8'
       ).fromTo(
         contentRef.current,
-        { y: 50, opacity: 0 },
+        { y: 30, opacity: 0 },
         { y: 0, opacity: 1, duration: 1, ease: 'power3.out' },
-        '-=1'
+        '-=1.2'
       );
     });
 
@@ -114,8 +127,9 @@ export default function ProjectDetail() {
   }
 
   return (
-    <main className="bg-[#050505] text-[#f5f5f5] min-h-screen pt-32">
-      <div className="max-w-7xl mx-auto px-6 md:px-20">
+    <main className="bg-[#050505] text-[#f5f5f5] min-h-screen pt-32 relative">
+      <div className="page-transition-overlay fixed inset-0 bg-[#050505] z-[100] pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-6 md:px-20 relative z-10">
         <button 
           onClick={() => router.back()}
           className="flex items-center gap-2 text-sm uppercase tracking-widest text-white/50 hover:text-white transition-colors mb-16 group"
