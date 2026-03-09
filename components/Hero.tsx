@@ -31,13 +31,37 @@ export default function Hero() {
       );
 
       // Parallax effect on scroll
-      gsap.to(containerRef.current, {
+      gsap.to('.hero-content', {
+        yPercent: 50,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      gsap.to('.hero-bg', {
         yPercent: 30,
         ease: 'none',
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
           end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      gsap.to('.scroll-indicator', {
+        opacity: 0,
+        y: -20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: '+=200',
           scrub: true,
         },
       });
@@ -51,12 +75,12 @@ export default function Hero() {
       ref={containerRef} 
       className="relative h-screen flex flex-col justify-center items-center overflow-hidden"
     >
-      <div className="absolute inset-0 z-0 opacity-20">
+      <div className="hero-bg absolute inset-0 z-0 opacity-20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-[100px] animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] animate-pulse delay-1000" />
       </div>
 
-      <div className="z-10 text-center px-4">
+      <div className="hero-content z-10 text-center px-4">
         <h1 ref={titleRef} className="font-serif text-[12vw] md:text-[8vw] leading-[0.85] tracking-tighter uppercase font-bold">
           <div className="overflow-hidden">
             <span className="block hero-line opacity-0">Abdur</span>
@@ -71,7 +95,7 @@ export default function Hero() {
         </p>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+      <div className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
         <span className="text-xs uppercase tracking-widest">Scroll</span>
         <div className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent animate-pulse" />
       </div>
