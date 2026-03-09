@@ -9,16 +9,16 @@ gsap.registerPlugin(ScrollTrigger);
 const experiences = [
   {
     id: 1,
-    role: "AI Engineer",
-    company: "TechNova Solutions",
-    period: "2024 — Present",
+    role: "Software Engineer - GenAI",
+    company: "WHATJOBS?",
+    period: "Dec 2023 — Present",
     description: "Developing large language models and implementing RAG architectures for enterprise clients. Optimizing inference pipelines for real-time applications."
   },
   {
     id: 2,
-    role: "Machine Learning Intern",
-    company: "DataSphere Inc.",
-    period: "2023 — 2024",
+    role: "AI/ML Intern",
+    company: "1Stop.ai",
+    period: "Jan 2022 — May 2022",
     description: "Built predictive models for customer churn. Collaborated with data scientists to clean and preprocess large datasets using Python and PyTorch."
   }
 ];
@@ -29,7 +29,7 @@ export default function Experience() {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const items = gsap.utils.toArray('.exp-item');
-      
+
       items.forEach((item: any, i) => {
         gsap.fromTo(
           item,
@@ -55,7 +55,7 @@ export default function Experience() {
     <section ref={sectionRef} className="py-32 px-6 md:px-20 bg-[#050505]">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-sm uppercase tracking-widest text-white/50 mb-16">02 — Experience</h2>
-        
+
         <div className="flex flex-col gap-12">
           {experiences.map((exp) => (
             <div key={exp.id} className="exp-item group relative border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between gap-8">
@@ -69,7 +69,7 @@ export default function Experience() {
                   {exp.description}
                 </p>
               </div>
-              
+
               {/* Hover effect background */}
               <div className="absolute inset-0 bg-white/[0.02] scale-y-0 origin-top group-hover:scale-y-100 transition-transform duration-500 -z-10 pointer-events-none" />
             </div>

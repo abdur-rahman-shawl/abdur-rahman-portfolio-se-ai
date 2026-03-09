@@ -15,7 +15,7 @@ export default function About() {
     const ctx = gsap.context(() => {
       // Split text animation
       const lines = textRef.current?.querySelectorAll('.about-line');
-      
+
       if (lines) {
         gsap.fromTo(
           lines,
@@ -44,9 +44,9 @@ export default function About() {
         <div className="md:col-span-4 flex flex-col justify-start">
           <h2 className="text-sm uppercase tracking-widest text-white/50 mb-4">01 — About</h2>
           <div className="w-full aspect-[3/4] relative overflow-hidden rounded-lg grayscale hover:grayscale-0 transition-all duration-700">
-            <Image 
-              src="https://picsum.photos/seed/abdur/800/1000" 
-              alt="Abdur Rahman" 
+            <Image
+              src="https://picsum.photos/seed/abdur/800/1000"
+              alt="Abdur Rahman"
               fill
               referrerPolicy="no-referrer"
               className="object-cover w-full h-full"
@@ -54,23 +54,23 @@ export default function About() {
             <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay"></div>
           </div>
         </div>
-        
+
         <div ref={textRef} className="md:col-span-8 flex flex-col justify-center text-2xl md:text-4xl lg:text-5xl font-serif leading-tight">
           <div className="overflow-hidden"><span className="block about-line">I am a 24-year-old Software</span></div>
           <div className="overflow-hidden"><span className="block about-line">Engineer specializing in</span></div>
-          <div className="overflow-hidden"><span className="block about-line text-blue-500 italic">Artificial Intelligence.</span></div>
+          <div className="overflow-hidden"><span className="block about-line text-blue-500 italic">Generative AI.</span></div>
           <br />
           <div className="overflow-hidden"><span className="block about-line">With a passion for building</span></div>
           <div className="overflow-hidden"><span className="block about-line">intelligent systems that solve</span></div>
           <div className="overflow-hidden"><span className="block about-line">complex human problems.</span></div>
-          
+
           <div className="mt-12 flex gap-8 text-sm font-sans uppercase tracking-widest text-white/60">
             <div className="about-line">
               <span className="block text-white text-3xl font-serif mb-2">2+</span>
               Years Experience
             </div>
             <div className="about-line">
-              <span className="block text-white text-3xl font-serif mb-2">15+</span>
+              <span className="block text-white text-3xl font-serif mb-2">10+</span>
               Projects Delivered
             </div>
           </div>

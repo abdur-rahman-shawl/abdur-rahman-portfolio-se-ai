@@ -1,4 +1,4 @@
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css'; // Global styles
 import SmoothScroll from '@/components/SmoothScroll';
@@ -17,11 +17,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Abdur Rahman | AI Engineer',
-  description: 'Portfolio of Abdur Rahman, Software Engineer - AI.',
+  title: 'Abdur Rahman | GenAI Engineer',
+  description: 'Portfolio of Abdur Rahman, Software Engineer - GenAI.',
 };
 
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body suppressHydrationWarning className="bg-[#050505] text-[#f5f5f5] selection:bg-[#f5f5f5] selection:text-[#050505]">

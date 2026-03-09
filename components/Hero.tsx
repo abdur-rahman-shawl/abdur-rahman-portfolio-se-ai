@@ -71,8 +71,8 @@ export default function Hero() {
   }, [isLoading]);
 
   return (
-    <section 
-      ref={containerRef} 
+    <section
+      ref={containerRef}
       className="relative h-screen flex flex-col justify-center items-center overflow-hidden"
     >
       <div className="hero-bg absolute inset-0 z-0 opacity-20">
@@ -89,9 +89,9 @@ export default function Hero() {
             <span className="block hero-line text-stroke opacity-0">Rahman</span>
           </div>
         </h1>
-        
+
         <p ref={subtitleRef} className="mt-8 text-lg md:text-xl font-light tracking-widest uppercase text-white/70 opacity-0">
-          Software Engineer <span className="text-blue-500 font-medium">— AI</span>
+          Software Engineer <span className="text-blue-500 font-medium">— GenAI</span>
         </p>
       </div>
 
