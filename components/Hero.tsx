@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLoader } from '@/components/LoaderContext';
+import NeuralParticles from '@/components/NeuralParticles';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -75,9 +76,9 @@ export default function Hero() {
       ref={containerRef}
       className="relative h-screen flex flex-col justify-center items-center overflow-hidden"
     >
-      <div className="hero-bg absolute inset-0 z-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-[100px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] animate-pulse delay-1000" />
+      {/* Neural particle canvas background */}
+      <div className="hero-bg absolute inset-0 z-0">
+        <NeuralParticles />
       </div>
 
       <div className="hero-content z-10 text-center px-4">
@@ -102,3 +103,4 @@ export default function Hero() {
     </section>
   );
 }
+
