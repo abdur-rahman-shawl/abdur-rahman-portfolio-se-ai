@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { useLoader } from '@/components/LoaderContext';
@@ -8,6 +8,15 @@ import { useLoader } from '@/components/LoaderContext';
 export default function Navbar() {
   const { isLoading } = useLoader();
   const navRef = useRef<HTMLElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => window.removeEventListener('scroll', handleWindowScroll);
+  }, []);
 
   useEffect(() => {
     if (!navRef.current || isLoading) return;
@@ -22,6 +31,16 @@ export default function Navbar() {
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
     const lenis = (window as any).lenis;
+
+    if (targetId === '#home') {
+      if (lenis) {
+        lenis.scrollTo(0);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
     if (lenis) {
       lenis.scrollTo(targetId);
     } else {
@@ -33,15 +52,27 @@ export default function Navbar() {
   };
 
   return (
-    <nav ref={navRef} className="fixed top-0 left-0 w-full z-50 p-6 mix-blend-difference flex justify-between items-center opacity-0">
-      <Link href="/" className="text-xl font-serif font-bold tracking-tighter cursor-pointer">
-        AR.
-      </Link>
-      <div className="flex gap-6 text-sm font-medium uppercase tracking-widest">
-        <Link href="/#about" onClick={(e) => handleScroll(e, '#about')} className="hover:opacity-70 transition-opacity cursor-pointer">About</Link>
-        <Link href="/#projects" onClick={(e) => handleScroll(e, '#projects')} className="hover:opacity-70 transition-opacity cursor-pointer">Projects</Link>
-        <Link href="/#contact" onClick={(e) => handleScroll(e, '#contact')} className="hover:opacity-70 transition-opacity cursor-pointer">Contact</Link>
-      </div>
-    </nav>
+    <div className="fixed top-0 left-0 w-full z-50 flex justify-center mt-6">
+      <nav 
+        ref={navRef} 
+        className={`flex items-center gap-4 md:gap-8 px-5 py-2.5 rounded-full transition-all duration-300 opacity-0 ${
+          isScrolled 
+            ? 'bg-[#111111]/90 backdrop-blur-md border border-white/10 shadow-lg' 
+            : 'bg-transparent border border-transparent'
+        }`}
+      >
+        <Link href="/" onClick={(e) => handleScroll(e, '#home')} className="text-xl font-serif font-bold tracking-tighter cursor-pointer flex items-center pr-2 md:pr-4 border-r border-white/20">
+          AR.
+        </Link>
+        <div className="flex items-center gap-4 md:gap-6 text-sm font-medium">
+          <Link href="/#home" onClick={(e) => handleScroll(e, '#home')} className="text-white/70 hover:text-white transition-colors cursor-pointer hidden md:block">Home</Link>
+          <Link href="/#about" onClick={(e) => handleScroll(e, '#about')} className="text-white/70 hover:text-white transition-colors cursor-pointer">About</Link>
+          <Link href="/#projects" onClick={(e) => handleScroll(e, '#projects')} className="text-white/70 hover:text-white transition-colors cursor-pointer">Work</Link>
+        </div>
+        <Link href="/#contact" onClick={(e) => handleScroll(e, '#contact')} className="ml-2 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white border border-white/5 rounded-full px-5 py-2 text-sm font-medium transition-colors cursor-pointer flex-shrink-0">
+          Contact
+        </Link>
+      </nav>
+    </div>
   );
 }
