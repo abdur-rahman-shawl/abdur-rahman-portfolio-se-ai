@@ -4,122 +4,160 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const fragmentShader = `
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform vec2 u_mouse;
-
-// Simplex 2D noise
-vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-float snoise(vec2 v){
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-           -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod(i, 289.0);
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-  + i.x + vec3(0.0, i1.x, 1.0 ));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
-    dot(x12.zw,x12.zw)), 0.0);
-  m = m*m ;
-  m = m*m ;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
-
-// Random function for cinematic grain
-float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-}
-
-void main() {
-    // Normalize coordinates and adjust for aspect ratio
-    vec2 st = gl_FragCoord.xy / u_resolution.xy;
-    vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
-    st.x *= aspect.x;
-
-    // Slower, elegant pacing
-    float t = u_time * 0.06;
-
-    // Map mouse coordinates from (-1 to 1) to (0 to 1) and correct for aspect ratio
-    vec2 mouse = (u_mouse * 0.5 + 0.5);
-    mouse.x *= aspect.x;
-
-    vec2 p = st * 1.2; // Scale for sweeping folds
-    
-    // Mouse Refraction - Gently displaces the liquid where the cursor hovers
-    vec2 dir = st - mouse;
-    float dist = length(dir);
-    p += normalize(dir) * exp(-dist * 3.0) * 0.05;
-
-    // Layered noise with Domain Warping for molten/silk feel
-    float n1 = snoise(p + t);
-    float n2 = snoise(p * 2.0 - t * 0.6 + n1 * 0.5);
-    float n3 = snoise(p * 4.0 + t * 0.3 + n2 * 0.25);
-
-    // Combine into a smooth, swirling flow
-    float flow = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
-    
-    // Create soft velvet folds using sine wave manipulation
-    float folds = sin(flow * 6.0 + t * 1.5);
-    float silk = smoothstep(-1.0, 1.0, folds);
-    
-    // Extract sharp peaks for specular-like glowing reflections
-    float highlight = smoothstep(0.5, 1.0, silk);
-
-    // Modern Luxury Palette: Obsidian, Metallic Graphite, and Champagne Gold
-    vec3 colorBase = vec3(0.04, 0.04, 0.05);   // Matte obsidian
-    vec3 colorMid = vec3(0.12, 0.12, 0.14);    // Metallic graphite
-    vec3 colorAccent = vec3(0.85, 0.72, 0.55); // Champagne gold
-    
-    // Base surface interpolation
-    vec3 finalColor = mix(colorBase, colorMid, silk);
-    
-    // Add glowing champagne highlights at the peaks
-    finalColor = mix(finalColor, colorAccent, highlight * 0.35);
-
-    // Add a soft, ambient spotlight directly from the cursor
-    float spotlight = exp(-dist * 2.5);
-    finalColor += colorAccent * spotlight * 0.06;
-    
-    // Elegant Vignette (darkens edges smoothly)
-    float vignette = length(st - aspect * 0.5);
-    finalColor *= smoothstep(1.5, 0.3, vignette);
-    
-    // Dithering/Film Grain (Crucial for premium feel & preventing color banding)
-    finalColor += (random(st) - 0.5) * 0.03;
-    
-    gl_FragColor = vec4(finalColor, 1.0);
-}
-`;
-
 const vertexShader = `
+uniform float u_time;
+uniform vec2 u_mouse;
+uniform float u_pixelRatio;
+attribute float a_random;
+
+varying vec3 v_color;
+varying float v_attention;
+
+// 3D Simplex Noise
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+float snoise(vec3 v) {
+  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+  vec3 i  = floor(v + dot(v, C.yyy) );
+  vec3 x0 = v - i + dot(i, C.xxx) ;
+  vec3 g = step(x0.yzx, x0.xyz);
+  vec3 l = 1.0 - g;
+  vec3 i1 = min( g.xyz, l.zxy );
+  vec3 i2 = max( g.xyz, l.zxy );
+  vec3 x1 = x0 - i1 + C.xxx;
+  vec3 x2 = x0 - i2 + C.yyy;
+  vec3 x3 = x0 - D.yyy;
+  i = mod289(i);
+  vec4 p = permute( permute( permute( i.z + vec4(0.0, i1.z, i2.z, 1.0 )) + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+  float n_ = 0.142857142857;
+  vec3  ns = n_ * D.wyz - D.xzx;
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+  vec4 x_ = floor(j * ns.z);
+  vec4 y_ = floor(j - 7.0 * x_ );
+  vec4 x = x_ *ns.x + ns.yyyy;
+  vec4 y = y_ *ns.x + ns.yyyy;
+  vec4 h = 1.0 - abs(x) - abs(y);
+  vec4 b0 = vec4( x.xy, y.xy );
+  vec4 b1 = vec4( x.zw, y.zw );
+  vec4 s0 = floor(b0)*2.0 + 1.0;
+  vec4 s1 = floor(b1)*2.0 + 1.0;
+  vec4 sh = -step(h, vec4(0.0));
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+  vec3 p0 = vec3(a0.xy,h.x);
+  vec3 p1 = vec3(a0.zw,h.y);
+  vec3 p2 = vec3(a1.xy,h.z);
+  vec3 p3 = vec3(a1.zw,h.w);
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+  p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+  m = m * m;
+  return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
+}
+
 void main() {
-    gl_Position = vec4(position, 1.0);
+    vec3 pos = position;
+
+    // Slower, more elegant, liquid-like drifting
+    float noiseFreq = 0.2;
+    float noiseAmp = 0.4;
+    vec3 noisePos = vec3(pos.x * noiseFreq + u_time * 0.03, pos.y * noiseFreq + u_time * 0.03, pos.z * noiseFreq);
+    
+    pos.x += snoise(noisePos) * noiseAmp;
+    pos.y += snoise(noisePos + vec3(10.0)) * noiseAmp;
+    pos.z += snoise(noisePos + vec3(20.0)) * noiseAmp;
+
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    
+    // Mouse attention logic
+    vec2 ndc = gl_Position.xy / gl_Position.w;
+    float distToMouse = length(ndc - u_mouse);
+    float mouseAttention = smoothstep(0.7, 0.0, distToMouse);
+    
+    // MOBILE FIX: Auto-pulsing attention based on time and position so it glows without a mouse
+    float autoPulse = (sin(u_time * 1.2 + pos.x * 1.5 + pos.y) * 0.5 + 0.5) * 0.4;
+    
+    v_attention = max(mouseAttention, autoPulse);
+
+    // MOBILE FIX: Scale particle size by device pixel ratio, and make base size 3x larger
+    float baseSize = 40.0 * a_random + 20.0;
+    gl_PointSize = baseSize * u_pixelRatio * (1.0 / -mvPosition.z);
+
+    // LUXURIOUS DARK PALETTE: Supports White & Blue foreground text
+    vec3 colorDeepBlue = vec3(0.05, 0.25, 0.7);  // Rich, deep royal blue
+    vec3 colorIceBlue = vec3(0.4, 0.8, 1.0);     // Soft cyan/ice blue
+    vec3 colorWhite = vec3(0.95, 0.98, 1.0);     // Crisp silver/white
+
+    // Smooth gradient mapping across the cluster
+    float mixVal = smoothstep(-4.0, 4.0, pos.x + pos.y);
+    vec3 baseColor = mix(colorDeepBlue, colorIceBlue, mixVal);
+    
+    // ~15% of nodes become bright silver "data stars"
+    v_color = mix(baseColor, colorWhite, step(0.85, a_random));
 }
 `;
 
-const ShaderPlane = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const { size, pointer } = useThree();
+const fragmentShader = `
+varying vec3 v_color;
+varying float v_attention;
+
+void main() {
+    // Soft circular brush
+    vec2 pt = gl_PointCoord - vec2(0.5);
+    float d = length(pt);
+    if (d > 0.5) discard;
+    
+    // Smoother, creamier blur on the particles
+    float alpha = smoothstep(0.5, 0.1, d);
+
+    // VISIBILITY FIX: Base opacity is now extremely high (0.6 minimum)
+    float finalAlpha = alpha * (0.6 + v_attention * 0.4);
+    
+    // Add a slight white core glow to nodes when they pulse
+    vec3 finalColor = v_color + (vec3(0.3) * v_attention);
+
+    gl_FragColor = vec4(finalColor, finalAlpha);
+}
+`;
+
+const ParticleField = () => {
+  const meshRef = useRef<THREE.Points>(null);
+  const { pointer, gl } = useThree();
+
+  // Volume Fix: Increased count significantly and spread them out to fill edges
+  const [positions, randoms] = useMemo(() => {
+    const count = 3000; // 3x more particles
+    const pos = new Float32Array(count * 3);
+    const rnd = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      // Widen the distribution to an ellipsoid so it covers modern 16:9 / mobile screens better
+      const r = Math.pow(Math.random(), 0.5) * 9.0;
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta) * 1.8; // Stretch width (X)
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 1.2; // Stretch height (Y)
+      pos[i * 3 + 2] = r * Math.cos(phi); // Depth (Z)
+
+      rnd[i] = Math.random();
+    }
+    return [pos, rnd];
+  }, []);
 
   const uniforms = useMemo(
     () => ({
       u_time: { value: 0 },
-      u_resolution: { value: new THREE.Vector2(size.width, size.height) },
-      u_mouse: { value: new THREE.Vector2(0, 0) },
-    }), [] // eslint-disable-line react-hooks/exhaustive-deps
+      // Start mouse way off-screen so the initial load doesn't have a giant bright spot
+      u_mouse: { value: new THREE.Vector2(5, 5) },
+      u_pixelRatio: { value: Math.min(gl.getPixelRatio(), 2) }, // Fix for mobile Retina displays
+    }),
+    [gl]
   );
 
   useFrame((state) => {
@@ -127,40 +165,50 @@ const ShaderPlane = () => {
       const material = meshRef.current.material as THREE.ShaderMaterial;
       material.uniforms.u_time.value = state.clock.elapsedTime;
 
-      // Smoothly interpolate mouse position (pointer is automatically -1 to 1)
+      // Smoothly track mouse if it's on screen
       material.uniforms.u_mouse.value.lerp(
         new THREE.Vector2(pointer.x, pointer.y),
         0.05
       );
 
-      material.uniforms.u_resolution.value.set(size.width, size.height);
+      // Majestic, very slow rotation
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.03;
+      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.015) * 0.05;
     }
   });
 
   return (
-    <mesh ref={meshRef}>
-      <planeGeometry args={[2, 2]} />
+    <points ref={meshRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-a_random" count={randoms.length} array={randoms} itemSize={1} />
+      </bufferGeometry>
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
         uniforms={uniforms}
+        transparent={true}
         depthWrite={false}
-        depthTest={false}
+        blending={THREE.AdditiveBlending}
       />
-    </mesh>
+    </points>
   );
 };
 
-export default function LatentSpace() {
+export default function HeroBackground() {
   return (
-    // 'bg-black' provides a fallback, completely overriding any underlying light theme
-    <div className="absolute inset-0 w-full h-full -z-10 bg-[#0a0a0c]">
+    // Beautiful midnight gradient background. Perfectly supports white/blue text.
+    <div className="absolute inset-0 w-full h-full -z-10 bg-gradient-to-b from-[#030306] via-[#060814] to-[#030306] overflow-hidden">
+
+      {/* Subtle vignette overlay to ensure text legibility in the exact center */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(3,3,6,0.6)_100%)] z-10 pointer-events-none" />
+
       <Canvas
-        camera={{ position: [0, 0, 1] }}
-        dpr={[1, 2]} // Crisp rendering
-        gl={{ antialias: false, powerPreference: "high-performance" }} // Optimized
+        camera={{ position: [0, 0, 10], fov: 45 }}
+        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <ShaderPlane />
+        <ParticleField />
       </Canvas>
     </div>
   );
