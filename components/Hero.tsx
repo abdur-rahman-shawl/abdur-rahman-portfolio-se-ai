@@ -72,7 +72,7 @@ export default function Hero() {
   }, [isLoading]);
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="relative h-screen flex flex-col justify-center items-center overflow-hidden"
     >
@@ -86,7 +86,7 @@ export default function Hero() {
             <span className="block hero-line opacity-0">Abdur</span>
           </div>
           <div className="overflow-hidden">
-            <span className="block hero-line text-stroke opacity-0">Rahman</span>
+            <span className="block hero-line opacity-0">Rahman</span>
           </div>
         </h1>
 

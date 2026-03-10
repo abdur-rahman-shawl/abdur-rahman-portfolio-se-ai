@@ -38,41 +38,67 @@ float snoise(vec2 v){
   return 130.0 * dot(m, g);
 }
 
+// Random function for cinematic grain
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+}
+
 void main() {
-    vec2 st = gl_FragCoord.xy/u_resolution.xy;
-    st.x *= u_resolution.x/u_resolution.y;
+    // Normalize coordinates and adjust for aspect ratio
+    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+    vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
+    st.x *= aspect.x;
 
-    // Create a slow moving time variable
-    float t = u_time * 0.15;
+    // Slower, elegant pacing
+    float t = u_time * 0.06;
 
-    // Influence of mouse position
-    vec2 mouse = u_mouse * 0.5;
-    float dist = distance(st, mouse + vec2(0.5)); // Center mouse approx
-    float mouseInfluence = smoothstep(1.0, 0.0, dist) * 0.3;
+    // Map mouse coordinates from (-1 to 1) to (0 to 1) and correct for aspect ratio
+    vec2 mouse = (u_mouse * 0.5 + 0.5);
+    mouse.x *= aspect.x;
 
-    // Layered noise for flow effect
-    vec2 p = st * 2.0;
-    float noise1 = snoise(p + t + mouseInfluence);
-    float noise2 = snoise(p * 2.0 - t * 1.5 - mouseInfluence * 2.0);
-    float noise3 = snoise(p * 4.0 + t * 2.0);
+    vec2 p = st * 1.2; // Scale for sweeping folds
     
-    // Combine noise layers
-    float finalNoise = noise1 * 0.5 + noise2 * 0.25 + noise3 * 0.125;
+    // Mouse Refraction - Gently displaces the liquid where the cursor hovers
+    vec2 dir = st - mouse;
+    float dist = length(dir);
+    p += normalize(dir) * exp(-dist * 3.0) * 0.05;
+
+    // Layered noise with Domain Warping for molten/silk feel
+    float n1 = snoise(p + t);
+    float n2 = snoise(p * 2.0 - t * 0.6 + n1 * 0.5);
+    float n3 = snoise(p * 4.0 + t * 0.3 + n2 * 0.25);
+
+    // Combine into a smooth, swirling flow
+    float flow = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
     
-    // Smooth out into bands/liquid streams
-    finalNoise = sin(finalNoise * 10.0 + t);
+    // Create soft velvet folds using sine wave manipulation
+    float folds = sin(flow * 6.0 + t * 1.5);
+    float silk = smoothstep(-1.0, 1.0, folds);
     
-    // Color mapping - Deep blues and purples to match the branding, very dark
-    vec3 color1 = vec3(0.02, 0.02, 0.05); // Dark base
-    vec3 color2 = vec3(0.05, 0.1, 0.2);   // Deep Blue
-    vec3 color3 = vec3(0.1, 0.05, 0.15);  // Deep Purple
+    // Extract sharp peaks for specular-like glowing reflections
+    float highlight = smoothstep(0.5, 1.0, silk);
+
+    // Modern Luxury Palette: Obsidian, Metallic Graphite, and Champagne Gold
+    vec3 colorBase = vec3(0.04, 0.04, 0.05);   // Matte obsidian
+    vec3 colorMid = vec3(0.12, 0.12, 0.14);    // Metallic graphite
+    vec3 colorAccent = vec3(0.85, 0.72, 0.55); // Champagne gold
     
-    vec3 finalColor = mix(color1, color2, smoothstep(-1.0, 0.5, finalNoise));
-    finalColor = mix(finalColor, color3, smoothstep(0.0, 1.0, finalNoise));
+    // Base surface interpolation
+    vec3 finalColor = mix(colorBase, colorMid, silk);
     
-    // Add extreme vignette for drama
-    float vignette = length(st - vec2(0.5, 0.5));
-    finalColor *= smoothstep(1.2, 0.2, vignette);
+    // Add glowing champagne highlights at the peaks
+    finalColor = mix(finalColor, colorAccent, highlight * 0.35);
+
+    // Add a soft, ambient spotlight directly from the cursor
+    float spotlight = exp(-dist * 2.5);
+    finalColor += colorAccent * spotlight * 0.06;
+    
+    // Elegant Vignette (darkens edges smoothly)
+    float vignette = length(st - aspect * 0.5);
+    finalColor *= smoothstep(1.5, 0.3, vignette);
+    
+    // Dithering/Film Grain (Crucial for premium feel & preventing color banding)
+    finalColor += (random(st) - 0.5) * 0.03;
     
     gl_FragColor = vec4(finalColor, 1.0);
 }
@@ -93,19 +119,20 @@ const ShaderPlane = () => {
       u_time: { value: 0 },
       u_resolution: { value: new THREE.Vector2(size.width, size.height) },
       u_mouse: { value: new THREE.Vector2(0, 0) },
-    }),
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    }), [] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   useFrame((state) => {
     if (meshRef.current) {
       const material = meshRef.current.material as THREE.ShaderMaterial;
       material.uniforms.u_time.value = state.clock.elapsedTime;
-      // Smoothly interpolate mouse position
+
+      // Smoothly interpolate mouse position (pointer is automatically -1 to 1)
       material.uniforms.u_mouse.value.lerp(
         new THREE.Vector2(pointer.x, pointer.y),
         0.05
       );
+
       material.uniforms.u_resolution.value.set(size.width, size.height);
     }
   });
@@ -126,11 +153,12 @@ const ShaderPlane = () => {
 
 export default function LatentSpace() {
   return (
-    <div className="absolute inset-0 w-full h-full -z-10">
+    // 'bg-black' provides a fallback, completely overriding any underlying light theme
+    <div className="absolute inset-0 w-full h-full -z-10 bg-[#0a0a0c]">
       <Canvas
         camera={{ position: [0, 0, 1] }}
-        dpr={[1, 2]} // Support high-DPI displays but clip at 2x for performance
-        gl={{ antialias: false, powerPreference: "high-performance" }} // Optimizations
+        dpr={[1, 2]} // Crisp rendering
+        gl={{ antialias: false, powerPreference: "high-performance" }} // Optimized
       >
         <ShaderPlane />
       </Canvas>
