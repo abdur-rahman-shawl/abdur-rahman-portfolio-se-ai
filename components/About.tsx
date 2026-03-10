@@ -45,7 +45,7 @@ export default function About() {
           <h2 className="text-sm uppercase tracking-widest text-white/50 mb-4">01 — About</h2>
           <div className="w-full aspect-[3/4] relative overflow-hidden rounded-lg grayscale hover:grayscale-0 transition-all duration-700">
             <Image
-              src="https://picsum.photos/seed/abdur/800/1000"
+              src="/profile-photo.png"
               alt="Abdur Rahman"
               fill
               referrerPolicy="no-referrer"

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLoader } from '@/components/LoaderContext';
@@ -13,6 +13,7 @@ export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -76,8 +77,28 @@ export default function Hero() {
       ref={containerRef}
       className="relative h-screen flex flex-col justify-center items-center overflow-hidden"
     >
-      <div className="hero-bg absolute inset-0 z-0 text-white">
-        <LatentSpace />
+      <div className="hero-bg absolute inset-0 z-0 text-white bg-black">
+        {!videoFailed ? (
+          <>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover opacity-60"
+              onError={() => setVideoFailed(true)}
+            >
+              <source src="/hero-bg-video.mp4" type="video/mp4" />
+            </video>
+            {/* Dark overlay to ensure text contrast over any video */}
+            <div className="absolute inset-0 bg-black/40 z-10" />
+
+            {/* Vignette overlay */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)] z-10 pointer-events-none" />
+          </>
+        ) : (
+          <LatentSpace />
+        )}
       </div>
 
       <div className="hero-content z-10 text-center px-4">
