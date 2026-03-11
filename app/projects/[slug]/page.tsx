@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { useLoader } from '@/components/LoaderContext';
 
@@ -99,6 +99,22 @@ export default function ProjectDetail() {
   
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Calculate Navigation
+  const projectKeys = Object.keys(projectsData);
+  const currentIndex = projectKeys.indexOf(slug);
+  
+  let prevSlug = null;
+  let nextSlug = null;
+  let prevProject = null;
+  let nextProject = null;
+
+  if (currentIndex !== -1) {
+    prevSlug = currentIndex === 0 ? projectKeys[projectKeys.length - 1] : projectKeys[currentIndex - 1];
+    nextSlug = currentIndex === projectKeys.length - 1 ? projectKeys[0] : projectKeys[currentIndex + 1];
+    prevProject = projectsData[prevSlug];
+    nextProject = projectsData[nextSlug];
+  }
 
   useEffect(() => {
     // Force scroll to top when component mounts
@@ -227,16 +243,42 @@ export default function ProjectDetail() {
             </div>
           ))}
         </div>
-        
-        <div className="flex justify-center mb-32">
-          <Link 
-            href="/#projects" 
-            className="inline-block border border-white/30 rounded-full px-8 py-4 text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
-          >
-            Next Project
-          </Link>
-        </div>
       </div>
+
+      {/* Project Navigation Footer */}
+      {(prevProject || nextProject) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 border-t border-white/10 mt-20">
+          {prevProject && (
+            <Link href={`/projects/${prevSlug}`} className="group relative p-12 md:p-20 border-b md:border-b-0 md:border-r border-white/10 overflow-hidden flex flex-col justify-center">
+              <div className="absolute inset-0 bg-white/[0.02] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] z-0" />
+              <div className="relative z-10 flex flex-col items-start text-left">
+                <span className="text-xs uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                  <ArrowLeft size={14} className="group-hover:-translate-x-2 transition-transform duration-300" />
+                  Previous Project
+                </span>
+                <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
+                  {prevProject.title}
+                </h3>
+              </div>
+            </Link>
+          )}
+          
+          {nextProject && (
+            <Link href={`/projects/${nextSlug}`} className="group relative p-12 md:p-20 overflow-hidden flex flex-col justify-center items-end text-right">
+              <div className="absolute inset-0 bg-white/[0.02] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] z-0" />
+              <div className="relative z-10 flex flex-col items-end">
+                <span className="text-xs uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
+                  Next Project
+                  <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform duration-300" />
+                </span>
+                <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
+                  {nextProject.title}
+                </h3>
+              </div>
+            </Link>
+          )}
+        </div>
+      )}
       
       <Footer />
     </main>
