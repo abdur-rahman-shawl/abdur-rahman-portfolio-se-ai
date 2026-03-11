@@ -55,23 +55,23 @@ export default function About() {
           </div>
         </div>
 
-        <div ref={textRef} className="md:col-span-8 flex flex-col justify-center text-2xl md:text-4xl lg:text-5xl font-serif leading-tight">
-          <div className="overflow-hidden"><span className="block about-line">I am a 24-year-old Software</span></div>
-          <div className="overflow-hidden"><span className="block about-line">Engineer specializing in</span></div>
-          <div className="overflow-hidden"><span className="block about-line text-blue-500 italic">Generative AI.</span></div>
+        <div ref={textRef} className="md:col-span-8 flex flex-col justify-center text-2xl md:text-3xl lg:text-5xl font-serif leading-tight">
+          <div className="overflow-hidden"><span className="block about-line">Software Engineer specializing</span></div>
+          <div className="overflow-hidden"><span className="block about-line">in <span className="text-blue-500 italic">Generative AI</span> and</span></div>
+          <div className="overflow-hidden"><span className="block about-line">Scalable Architectures.</span></div>
           <br />
-          <div className="overflow-hidden"><span className="block about-line">With a passion for building</span></div>
-          <div className="overflow-hidden"><span className="block about-line">intelligent systems that solve</span></div>
-          <div className="overflow-hidden"><span className="block about-line">complex human problems.</span></div>
+          <div className="overflow-hidden"><span className="block about-line text-white/80">Bridging the gap between</span></div>
+          <div className="overflow-hidden"><span className="block about-line text-white/80">complex AI R&D and robust</span></div>
+          <div className="overflow-hidden"><span className="block about-line text-white/80">enterprise engineering.</span></div>
 
           <div className="mt-12 flex gap-8 text-sm font-sans uppercase tracking-widest text-white/60">
             <div className="about-line">
-              <span className="block text-white text-3xl font-serif mb-2">2+</span>
-              Years Experience
+              <span className="block text-white text-3xl font-serif mb-2">100M+</span>
+              Records Resolved
             </div>
             <div className="about-line">
-              <span className="block text-white text-3xl font-serif mb-2">10+</span>
-              Projects Delivered
+              <span className="block text-white text-3xl font-serif mb-2">10k+</span>
+              Active Users
             </div>
           </div>
         </div>

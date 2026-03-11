@@ -10,56 +10,82 @@ import Footer from '@/components/Footer';
 import { useLoader } from '@/components/LoaderContext';
 
 const projectsData: Record<string, any> = {
-  "neural-vision": {
-    title: "Neural Vision",
-    category: "Computer Vision",
-    year: "2025",
-    role: "Lead AI Engineer",
-    client: "TechNova Solutions",
-    description: "Developed a state-of-the-art computer vision system capable of real-time object detection and segmentation in low-light environments. The system utilizes a custom transformer architecture optimized for edge devices.",
-    image: "https://picsum.photos/seed/vision/1920/1080",
+  "semantic-search-engine": {
+    title: "Semantic Job Resolver",
+    category: "Search / NLP",
+    year: "2024",
+    role: "AI & Web Developer",
+    client: "WhatJobs",
+    description: "Traditional keyword matching fails to capture the intent behind millions of messy, real-world job titles. I engineered a high-performance categorization engine that resolved 100 million+ job listings. By developing a custom NLP pipeline with BIO NER tagging and generating vector embeddings for Apache SOLR, we moved beyond literal text matching to intent-based search—drastically improving relevance and speed.",
+    image: "https://picsum.photos/seed/search/1920/1080",
     gallery: [
-      "https://picsum.photos/seed/vision1/800/600",
-      "https://picsum.photos/seed/vision2/800/600"
+      "https://picsum.photos/seed/search1/800/600",
+      "https://picsum.photos/seed/search2/800/600"
     ]
   },
-  "llm-agent": {
-    title: "Autonomous Agent",
-    category: "NLP / Agents",
+  "seo-content-architect": {
+    title: "AI SEO Architect",
+    category: "Generative AI",
+    year: "2024",
+    role: "AI Developer",
+    client: "WhatJobs",
+    description: "Manually creating SEO-optimized descriptions and FAQs for millions of landing pages is impossible. I built an autonomous app that generates high-standard, SEO-optimized content based on real-time search trends. It integrates Google Rich Snippets directly into generated content and runs an automated hyperlinking engine that created over 5 million internal links, massively increasing site crawlability.",
+    image: "https://picsum.photos/seed/seo/1920/1080",
+    gallery: [
+      "https://picsum.photos/seed/seo1/800/600",
+      "https://picsum.photos/seed/seo2/800/600"
+    ]
+  },
+  "lucy-ai-assistant": {
+    title: "Lucy AI Assistant",
+    category: "Conversational AI",
+    year: "2023",
+    role: "Lead GenAI Engineer",
+    client: "WhatJobs",
+    description: "Job seekers are often overwhelmed by static search filters. I created 'Lucy', a conversational AI agent that guides users through their career search like a human recruiter. Orchestrated as a Flask-based microservice using GPT-4 and SpaCy, it extracts user preferences from natural dialogue and is served via a custom CORS-enabled iframe. It is currently live in 4 countries serving over 10,000 active users.",
+    image: "https://picsum.photos/seed/lucy/1920/1080",
+    gallery: [
+      "https://picsum.photos/seed/lucy1/800/600",
+      "https://picsum.photos/seed/lucy2/800/600"
+    ]
+  },
+  "autonomous-agents": {
+    title: "Autonomous Agents",
+    category: "Agentic Workflows",
     year: "2024",
     role: "AI Researcher",
-    client: "OpenSource Initiative",
-    description: "Built an autonomous LLM-powered agent capable of executing complex multi-step reasoning tasks. Integrated with various APIs to allow the agent to perform actions on behalf of the user.",
-    image: "https://picsum.photos/seed/agent/1920/1080",
+    client: "Internal R&D",
+    description: "Moving from simple chatbots to agents that can 'think' and 'act' autonomously. I utilized LangChain and OpenAI Function Calling to create a system capable of planning its own task execution. This includes a Natural Language-to-SQL pipeline where the agent securely queries a PostgreSQL database, interprets the results, and adjusts its next steps based on data insights.",
+    image: "https://picsum.photos/seed/agents/1920/1080",
     gallery: [
-      "https://picsum.photos/seed/agent1/800/600",
-      "https://picsum.photos/seed/agent2/800/600"
+      "https://picsum.photos/seed/agents1/800/600",
+      "https://picsum.photos/seed/agents2/800/600"
     ]
   },
-  "predictive-analytics": {
-    title: "Predictive Engine",
-    category: "Time Series",
-    year: "2024",
-    role: "Machine Learning Engineer",
-    client: "FinTech Global",
-    description: "Engineered a highly accurate time-series forecasting model for financial markets. The model processes millions of data points per second to provide real-time insights and predictions.",
-    image: "https://picsum.photos/seed/predict/1920/1080",
-    gallery: [
-      "https://picsum.photos/seed/predict1/800/600",
-      "https://picsum.photos/seed/predict2/800/600"
-    ]
-  },
-  "generative-art": {
-    title: "Generative Canvas",
-    category: "Generative AI",
+  "resume-parser-rag": {
+    title: "Global Resume Parser",
+    category: "RAG / Pipelines",
     year: "2023",
-    role: "Creative Technologist",
-    client: "ArtSpace Gallery",
-    description: "Created an interactive generative art installation using diffusion models. Users can input text prompts to generate unique, high-resolution artworks in real-time.",
-    image: "https://picsum.photos/seed/art/1920/1080",
+    role: "Backend Engineer",
+    client: "Global Apps",
+    description: "To build a better employer-candidate matching engine, we needed high-fidelity data extraction at scale. I leveraged the Google GenAI SDK and Retrieval-Augmented Generation (RAG) to extract detailed data from over 2 million resumes. This system scaled across 40+ countries and 15 languages, generating standardized JSON profiles for downstream matching operations.",
+    image: "https://picsum.photos/seed/parser/1920/1080",
     gallery: [
-      "https://picsum.photos/seed/art1/800/600",
-      "https://picsum.photos/seed/art2/800/600"
+      "https://picsum.photos/seed/parser1/800/600",
+      "https://picsum.photos/seed/parser2/800/600"
+    ]
+  },
+  "whatjobs-pwa": {
+    title: "WhatJobs Native PWA",
+    category: "Mobile / Config",
+    year: "2023",
+    role: "Full-Stack Engineer",
+    client: "WhatJobs",
+    description: "Single-handedly architected a Progressive Web App using Lit and Python Flask, natively packaged for both iOS and Android stores. Designed to function seamlessly across device ecosystems, it implements custom Service Workers for offline capabilities and integrates Firebase Cloud Messaging (FCM) to deliver rich, real-time push notifications to job seekers.",
+    image: "https://picsum.photos/seed/pwa/1920/1080",
+    gallery: [
+      "https://picsum.photos/seed/pwa1/800/600",
+      "https://picsum.photos/seed/pwa2/800/600"
     ]
   }
 };

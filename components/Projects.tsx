@@ -11,34 +11,50 @@ gsap.registerPlugin(ScrollTrigger);
 const projects = [
   {
     id: 1,
-    slug: "neural-vision",
-    title: "Neural Vision",
-    category: "Computer Vision",
-    image: "https://picsum.photos/seed/vision/1200/800",
-    year: "2025"
+    slug: "semantic-search-engine",
+    title: "Semantic Job Resolver",
+    category: "Search / NLP",
+    image: "https://picsum.photos/seed/search/1200/800",
+    year: "2024"
   },
   {
     id: 2,
-    slug: "llm-agent",
-    title: "Autonomous Agent",
-    category: "NLP / Agents",
-    image: "https://picsum.photos/seed/agent/1200/800",
+    slug: "seo-content-architect",
+    title: "AI SEO Architect",
+    category: "Generative AI",
+    image: "https://picsum.photos/seed/seo/1200/800",
     year: "2024"
   },
   {
     id: 3,
-    slug: "predictive-analytics",
-    title: "Predictive Engine",
-    category: "Time Series",
-    image: "https://picsum.photos/seed/predict/1200/800",
-    year: "2024"
+    slug: "lucy-ai-assistant",
+    title: "Lucy AI Assistant",
+    category: "Conversational AI",
+    image: "https://picsum.photos/seed/lucy/1200/800",
+    year: "2023"
   },
   {
     id: 4,
-    slug: "generative-art",
-    title: "Generative Canvas",
-    category: "Generative AI",
-    image: "https://picsum.photos/seed/art/1200/800",
+    slug: "autonomous-agents",
+    title: "Autonomous Agents",
+    category: "Agentic Workflows",
+    image: "https://picsum.photos/seed/agents/1200/800",
+    year: "2024"
+  },
+  {
+    id: 5,
+    slug: "resume-parser-rag",
+    title: "Global Resume Parser",
+    category: "RAG / Pipelines",
+    image: "https://picsum.photos/seed/parser/1200/800",
+    year: "2023"
+  },
+  {
+    id: 6,
+    slug: "whatjobs-pwa",
+    title: "WhatJobs Native PWA",
+    category: "Mobile / Infrastructure",
+    image: "https://picsum.photos/seed/pwa/1200/800",
     year: "2023"
   }
 ];
@@ -103,7 +119,7 @@ export default function Projects() {
       </div>
 
       {/* Horizontal Scroll Container */}
-      <div ref={scrollContainerRef} className="flex flex-nowrap h-screen w-[400vw]">
+      <div ref={scrollContainerRef} className="flex flex-nowrap h-screen" style={{ width: `${projects.length * 100}vw` }}>
         {projects.map((project) => (
           <div 
             key={project.id}
