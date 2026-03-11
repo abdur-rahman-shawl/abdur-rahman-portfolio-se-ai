@@ -173,7 +173,7 @@ export default function ProjectDetail() {
       <div className="page-transition-overlay fixed inset-0 bg-[#050505] z-[100] pointer-events-none" />
       <div className="max-w-7xl mx-auto px-6 md:px-20 relative z-10">
         <button 
-          onClick={() => router.back()}
+          onClick={() => router.push('/#projects')}
           className="flex items-center gap-2 text-sm uppercase tracking-widest text-white/50 hover:text-white transition-colors mb-16 group"
         >
           <ArrowLeft size={16} className="group-hover:-translate-x-2 transition-transform" />
@@ -245,40 +245,46 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      {/* Project Navigation Footer */}
-      {(prevProject || nextProject) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 border-t border-white/10 mt-20">
-          {prevProject && (
-            <Link href={`/projects/${prevSlug}`} className="group relative p-12 md:p-20 border-b md:border-b-0 md:border-r border-white/10 overflow-hidden flex flex-col justify-center">
-              <div className="absolute inset-0 bg-white/[0.02] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] z-0" />
-              <div className="relative z-10 flex flex-col items-start text-left">
-                <span className="text-xs uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
-                  <ArrowLeft size={14} className="group-hover:-translate-x-2 transition-transform duration-300" />
-                  Previous Project
-                </span>
-                <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
-                  {prevProject.title}
-                </h3>
-              </div>
-            </Link>
-          )}
-          
-          {nextProject && (
-            <Link href={`/projects/${nextSlug}`} className="group relative p-12 md:p-20 overflow-hidden flex flex-col justify-center items-end text-right">
-              <div className="absolute inset-0 bg-white/[0.02] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] z-0" />
-              <div className="relative z-10 flex flex-col items-end">
-                <span className="text-xs uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2">
-                  Next Project
-                  <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform duration-300" />
-                </span>
-                <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
-                  {nextProject.title}
-                </h3>
-              </div>
-            </Link>
-          )}
+      {/* Floating Project Dock (macOS Style) */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[90%] md:w-auto overflow-x-auto hide-scrollbar">
+        <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl mx-auto w-max">
+          {projectKeys.map((key) => {
+            const isActive = key === slug;
+            const projectData = projectsData[key];
+            // Get just the first 1-2 words for a cleaner dock title depending on length
+            const shortTitle = projectData.title.split(' ').slice(0, 2).join(' ');
+
+            return (
+              <Link 
+                key={key} 
+                href={`/projects/${key}`}
+                className="relative group"
+              >
+                <div 
+                  className={`
+                    px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                    ${isActive 
+                      ? 'bg-white text-black shadow-lg scale-100' 
+                      : 'text-white/50 hover:bg-white/10 hover:text-white hover:scale-105'
+                    }
+                  `}
+                >
+                  <span className="whitespace-nowrap">{shortTitle}</span>
+                </div>
+                
+                {/* Tooltip on hover (only visible if not active) */}
+                {!isActive && (
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div className="bg-[#1a1a1a] text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10 shadow-xl">
+                      {projectData.title}
+                    </div>
+                  </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
-      )}
+      </div>
       
       <Footer />
     </main>
