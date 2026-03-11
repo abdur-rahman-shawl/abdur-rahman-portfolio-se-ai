@@ -246,9 +246,9 @@ export default function ProjectDetail() {
       </div>
 
       {/* Floating Project Dock (macOS Style) */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[90%] md:w-auto overflow-x-auto hide-scrollbar">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-auto flex justify-center">
         <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl mx-auto w-max">
-          {projectKeys.map((key) => {
+          {projectKeys.map((key, i) => {
             const isActive = key === slug;
             const projectData = projectsData[key];
             // Get just the first 1-2 words for a cleaner dock title depending on length
@@ -262,19 +262,29 @@ export default function ProjectDetail() {
               >
                 <div 
                   className={`
-                    px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                    flex items-center justify-center transition-all duration-300 font-medium
                     ${isActive 
-                      ? 'bg-white text-black shadow-lg scale-100' 
-                      : 'text-white/50 hover:bg-white/10 hover:text-white hover:scale-105'
+                      ? 'px-4 py-3 rounded-xl bg-white text-black shadow-lg scale-100 text-sm' 
+                      : 'w-10 h-10 md:w-auto md:h-auto md:px-4 md:py-3 rounded-full md:rounded-xl text-white/50 hover:bg-white/10 hover:text-white hover:scale-105 text-xs md:text-sm'
                     }
                   `}
                 >
-                  <span className="whitespace-nowrap">{shortTitle}</span>
+                  {/* Mobile: Show Number (if inactive). Desktop: Show Title (always) */}
+                  <span className={`whitespace-nowrap ${!isActive ? 'hidden md:block' : 'block'}`}>
+                    {shortTitle}
+                  </span>
+                  
+                  {/* Mobile: Show Number (if inactive) */}
+                  {!isActive && (
+                    <span className="block md:hidden">
+                      {i + 1}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Tooltip on hover (only visible if not active) */}
                 {!isActive && (
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none hidden md:block">
                     <div className="bg-[#1a1a1a] text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10 shadow-xl">
                       {projectData.title}
                     </div>
