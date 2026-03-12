@@ -407,10 +407,10 @@ export default function ProjectDetail() {
             <p className="text-lg text-white/70 mb-8 max-w-2xl font-light leading-relaxed">
               I build AI-powered solutions that solve real-world problems at scale. From NLP systems processing millions of records to autonomous agents orchestrating complex workflows. Let's create something exceptional together.
             </p>
-            <a href="mailto:hello@example.com" className="inline-flex items-center gap-2 px-6 py-3 bg-[#3b82f6] text-white rounded-lg font-medium hover:bg-[#2563eb] transition-all duration-300 hover:gap-3 group">
+            <Link href="/#contact" className="inline-flex items-center gap-2 px-6 py-3 bg-[#3b82f6] text-white rounded-lg font-medium hover:bg-[#2563eb] transition-all duration-300 hover:gap-3 group">
               Get in Touch
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
