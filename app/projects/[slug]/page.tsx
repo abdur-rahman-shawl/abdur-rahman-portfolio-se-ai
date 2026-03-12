@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -160,11 +160,33 @@ export default function ProjectDetail() {
   const { isLoading } = useLoader();
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const slug = params?.slug as string;
   const project = projectsData[slug];
   
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    
+    // If we are not on the home page, redirect to the home page with the hash
+    if (pathname !== '/') {
+      router.push(`/${targetId}`);
+      return;
+    }
+
+    const lenis = (window as any).lenis;
+
+    if (lenis) {
+      lenis.scrollTo(targetId);
+    } else {
+      const target = document.querySelector(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   // Calculate Navigation
   const projectKeys = Object.keys(projectsData);
@@ -407,7 +429,7 @@ export default function ProjectDetail() {
             <p className="text-lg text-white/70 mb-8 max-w-2xl font-light leading-relaxed">
               I build AI-powered solutions that solve real-world problems at scale. From NLP systems processing millions of records to autonomous agents orchestrating complex workflows. Let's create something exceptional together.
             </p>
-            <Link href="/#contact" className="inline-flex items-center gap-2 px-6 py-3 bg-[#3b82f6] text-white rounded-lg font-medium hover:bg-[#2563eb] transition-all duration-300 hover:gap-3 group">
+            <Link href="/#contact" onClick={(e) => handleScroll(e, '#contact')} className="inline-flex items-center gap-2 px-6 py-3 bg-[#3b82f6] text-white rounded-lg font-medium hover:bg-[#2563eb] transition-all duration-300 hover:gap-3 group">
               Get in Touch
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
